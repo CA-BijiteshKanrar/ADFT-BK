@@ -1,0 +1,46 @@
+{
+  "project": "Financial Transaction Anomaly Detection",
+  "finalization_boundary": {
+    "commit": "da7747a",
+    "change": "SMOTE k_neighbors set to 3 for the supervised RF benchmark and pushed to origin/main"
+  },
+  "queries": [
+    {
+      "id": 1,
+      "question": "In PCA reconstruction algorithm, after reduction which classifier model are you using?",
+      "answer_summary": "No classifier follows PCA. Mean squared reconstruction error is the anomaly score, and a validation-selected threshold turns that score into an alert decision.",
+      "report_topic": "PCA reconstruction detection mechanism"
+    },
+    {
+      "id": 2,
+      "question": "How is it returning best anomaly model as PCA reconstruction ?????????????????????",
+      "attachment_context": "Screenshots showed the restricted anomaly_names selection code and a validation table with RF F2 0.82721 and PCA F2 0.80224.",
+      "answer_summary": "The selection list contains Isolation Forest, LOF, PCA, and IQR, but excludes supervised RF. PCA has the highest validation F2 within that list; RF has the highest F2 in the displayed table overall.",
+      "report_topic": "Restricted anomaly-model selection versus overall comparison"
+    },
+    {
+      "id": 3,
+      "question": "WHY IS IT EXCLUDED MAH NIBBA  ?",
+      "answer_summary": "The notebook treats RF as a supervised benchmark rather than an anomaly detector trained on normal transactions, and the anomaly_names list explicitly omits it. This is a code-level scope choice, not evidence that RF performed worse.",
+      "report_topic": "Reason for excluding RF from anomaly-only selection"
+    },
+    {
+      "id": 4,
+      "question": "Explain more la",
+      "answer_summary": "PCA uses reconstruction error and a threshold; RF learns from labeled normal and fraud examples and produces fraud probabilities. PCA wins the anomaly-only selection, while RF wins the screenshot's overall validation F2 comparison.",
+      "report_topic": "Supervised versus anomaly-only model comparison"
+    },
+    {
+      "id": 5,
+      "question": "So, if the test dataset does not have class labels, which model will be best performing ?",
+      "answer_summary": "RF can predict without test labels if labeled training data exists. Validation results favor RF as an overall choice, but actual test performance cannot be measured without test labels. Without training labels, RF cannot be trained as written.",
+      "report_topic": "Inference and evaluation on unlabeled data"
+    },
+    {
+      "id": 6,
+      "question": "Is RF Benchmark model deployable?",
+      "answer_summary": "RF is technically deployable, but the notebook's current deployment path excludes it and expects anomaly-model score_samples(). RF deployment needs its fitted pipeline, feature preparation, predict_proba(), and a validation-selected probability threshold; the RF path uses unscaled engineered features.",
+      "report_topic": "RF deployment gap and required inference path"
+    }
+  ]
+}
