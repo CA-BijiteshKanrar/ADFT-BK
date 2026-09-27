@@ -1,6 +1,6 @@
 # Financial Transaction Anomaly Detection
 
-This project runs in one [Google Colab notebook](https://colab.research.google.com/github/CA-BijiteshKanrar/ADFT-BK/blob/main/Financial_Transaction_Anomaly_Detection.ipynb). It compares IQR, Isolation Forest, Local Outlier Factor, and PCA reconstruction error on the ULB/Worldline credit-card fraud dataset, with a supervised Random Forest benchmark.
+This project runs in one [Google Colab notebook](https://colab.research.google.com/drive/11jos1zldb7tFKxYZ7Pji5wCb0e4CcUCU#scrollTo=4b4bc0ed49fe&uniqifier=1). It compares IQR, Isolation Forest, Local Outlier Factor, and PCA reconstruction error on the ULB/Worldline credit-card fraud dataset, with a supervised Random Forest benchmark.
 
 ## Run in Colab
 
