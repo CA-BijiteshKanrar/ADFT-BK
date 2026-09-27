@@ -27,3 +27,20 @@ Synthetic results are kept in a separate folder and must not be reported as real
 Dataset: [ULB/Worldline Credit Card Fraud Detection](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud), created by the Machine Learning Group at ULB and Worldline. Kaggle lists the database under the [Open Database License](https://opendatacommons.org/licenses/odbl/1-0/) and its individual contents under the [Database Contents License](https://opendatacommons.org/licenses/dbcl/1-0/). The supplied ZIP was copied unchanged to `content/creditcard.csv.zip` (SHA-256: `d9ade8e5a6c7b39cf3afef2de0fc10ecf9337c2cebdc6cc59a54b1d9dce007cc`). It contains 284,807 transactions over two days, including 492 labeled frauds. The notebook uses a time-ordered train, validation, and test split, selects alert thresholds on validation data, and evaluates locked thresholds on test data.
 
 This historical, anonymized benchmark demonstrates methodology. Its metrics alone do not establish readiness for autonomous transaction blocking.
+
+## Streamlit demonstration
+
+The [Streamlit app](streamlit_app.py) serves two pre-fitted models from this repository: the supervised SMOTE + Random Forest benchmark and a validation-selected anomaly detector (PCA reconstruction in the packaged run). It scores one sample transaction or a CSV batch of up to 10,000 rows. Its inputs are the raw `Time`, `Amount`, and `V1`–`V28` fields. `Class` is neither required nor used for inference. A flag means **manual review**, not confirmed fraud.
+
+To run locally with Python 3.12:
+
+```bash
+python -m pip install -r requirements.txt
+streamlit run streamlit_app.py
+```
+
+To deploy on [Streamlit Community Cloud](https://share.streamlit.io/), select repository `CA-BijiteshKanrar/ADFT-BK`, branch `main`, and entrypoint `streamlit_app.py`; choose Python 3.12. The root `requirements.txt` declares the app dependencies. The model files under `models/` and examples under `samples/` are included, so the app does not train at startup or need Google Drive, API keys, or dataset uploads. The repository's bundled dataset is used only to rebuild the artifacts.
+
+To rebuild both artifacts from the bundled dataset, run `python train_streamlit_models.py --model both`. This uses the notebook's cleaning, feature order, time split, validation threshold rule, and Random Forest settings. For practical artifact training, the anomaly search uses a smaller Isolation Forest grid than the notebook; the packaged anomaly model is selected on validation F2 after choosing the lowest-cost setting within each family. Rebuilding can produce slightly different numbers with different library versions. The app's Model comparison tab reports the locked test results stored with the artifacts.
+
+This public demo is for anonymized benchmark transactions. Do not upload real customer data or use its alert decision to block a payment.
