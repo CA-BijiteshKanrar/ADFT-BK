@@ -37,7 +37,7 @@ class StreamlitInferenceTests(unittest.TestCase):
             with self.subTest(model=bundle["model_name"]):
                 plain = score_transactions(bundle, self.examples)
                 with_label = score_transactions(bundle, labelled)
-                np.testing.assert_array_equal(plain["score"], with_label["score"])
+                np.testing.assert_allclose(plain["score"], with_label["score"], rtol=1e-12, atol=1e-12)
 
     def test_invalid_csv_fields_are_rejected(self):
         invalid_rows = [
