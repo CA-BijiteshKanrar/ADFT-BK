@@ -30,7 +30,17 @@ This historical, anonymized benchmark demonstrates methodology. Its metrics alon
 
 ## Streamlit demonstration
 
-The [Streamlit app](streamlit_app.py) serves two pre-fitted models from this repository: the supervised SMOTE + Random Forest benchmark and a validation-selected anomaly detector (PCA reconstruction in the packaged run). In **CSV Import**, click **Evaluate bundled test data** to run the selected model on the packaged dataset's 42,559 held-out test rows, see metrics against their known labels, and download the scored results. No CSV upload is needed for this evaluation. The app also scores one sample transaction or an imported CSV batch of up to 10,000 rows. Its inputs are the raw `Time`, `Amount`, and `V1`–`V28` fields. `Class` is neither required nor used for inference; it is used only to calculate metrics on the held-out test data. A flag means **manual review**, not confirmed fraud.
+**Live app:** [Financial Transaction Review](https://ccfraudrisk.streamlit.app/)
+
+The app serves two fitted models. Choose between the supervised **SMOTE + class-weighted Random Forest** and the validation-selected **PCA reconstruction anomaly detector** in the sidebar. The Random Forest displays a fraud probability; PCA displays a reconstruction-error anomaly score. Both use a review threshold selected on validation data. Their fitted artifacts are included in `models/`, so opening the app does not retrain them or require Google Drive.
+
+| App tab | What it does |
+| --- | --- |
+| **CSV Import** | Click **Evaluate bundled test data** to score the 42,559 held-out test rows, view confusion counts and metrics, and download the scored results. Alternatively, download the sample CSV or upload up to 10,000 transactions for scoring. |
+| **Single transaction** | Choose an example, edit `Time`, `Amount`, and the anonymized `V1`–`V28` values, then score it. |
+| **Model comparison** | View the locked test metrics stored with both packaged model artifacts. |
+
+Uploaded CSVs need numeric `Time`, `Amount`, and `V1`–`V28` columns. Extra columns, including `Class`, are ignored during scoring. The known `Class` labels in the bundled test split are used only to calculate evaluation metrics. A flag is a **manual-review recommendation**, not proof of fraud or an automatic payment block.
 
 To run locally with Python 3.12:
 
@@ -39,8 +49,8 @@ python -m pip install -r requirements.txt
 streamlit run streamlit_app.py
 ```
 
-To deploy on [Streamlit Community Cloud](https://share.streamlit.io/), select repository `CA-BijiteshKanrar/ADFT-BK`, branch `main`, and entrypoint `streamlit_app.py`; choose Python 3.12. The root `requirements.txt` declares the app dependencies. The model files under `models/`, examples under `samples/`, and dataset under `content/` are included, so the app does not train at startup or need Google Drive, API keys, or dataset uploads.
+The deployed app runs from `streamlit_app.py` on the repository's `main` branch with Python 3.12 and the root `requirements.txt`. Its bundled model artifacts, example transactions, and dataset are included in the repository. The hosted app needs no Google Drive connection, API key, or dataset upload to evaluate the held-out split.
 
-To rebuild both artifacts from the bundled dataset, run `python train_streamlit_models.py --model both`. This uses the notebook's cleaning, feature order, time split, validation threshold rule, and Random Forest settings. For practical artifact training, the anomaly search uses a smaller Isolation Forest grid than the notebook; the packaged anomaly model is selected on validation F2 after choosing the lowest-cost setting within each family. Rebuilding can produce slightly different numbers with different library versions. The app's Model comparison tab reports the locked test results stored with the artifacts.
+To rebuild the app's two artifacts from the bundled dataset, run `python train_streamlit_models.py --model both`. This follows the notebook's cleaning, feature order, chronological split, validation threshold rule, and Random Forest settings. The app's anomaly search uses a smaller Isolation Forest grid for repeatable artifact training; PCA was the selected anomaly model in the packaged run. The app artifacts are separate from the notebook's saved Isolation Forest/LOF inference bundle, and retraining can change metrics across library versions.
 
-This public demo is for anonymized benchmark transactions. Do not upload real customer data or use its alert decision to block a payment.
+This public demo uses a historical, anonymized two-day benchmark. Its offline results do not establish live fraud-detection performance. Do not upload real customer data or use its alerts to block payments.
