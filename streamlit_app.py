@@ -132,11 +132,11 @@ def main() -> None:
         st.write("Threshold selected on validation data; test data were held out.")
         st.link_button("View project notebook", "https://colab.research.google.com/github/CA-BijiteshKanrar/ADFT-BK/blob/main/Financial_Transaction_Anomaly_Detection.ipynb")
 
-    single, batch, details = st.tabs(["Single transaction", "CSV batch", "Model comparison"])
-    with single:
-        render_single(bundle, examples)
+    batch, single, details = st.tabs(["CSV Import Tab", "Single transaction", "Model comparison"])
     with batch:
         render_batch(bundle, examples)
+    with single:
+        render_single(bundle, examples)
     with details:
         st.markdown(bundle["metadata"].get("model_note", ""))
         st.write("A flag routes a transaction for review. Do not use this public demo with real customer data or to make payment-blocking decisions.")
