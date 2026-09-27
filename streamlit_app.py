@@ -73,7 +73,7 @@ def render_single(bundle: dict, examples: pd.DataFrame) -> None:
 
 
 def render_batch(bundle: dict, examples: pd.DataFrame) -> None:
-    st.subheader("Score a CSV batch")
+    st.subheader("Evaluate this Dataset")
     st.write("Provide `Time`, `Amount`, and `V1` through `V28`. Extra columns, including `Class`, are ignored. Up to 10,000 rows are accepted.")
     st.download_button(
         "Download sample CSV",
