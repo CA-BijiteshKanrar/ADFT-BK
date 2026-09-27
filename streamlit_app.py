@@ -132,7 +132,7 @@ def main() -> None:
         st.write("Threshold selected on validation data; test data were held out.")
         st.link_button("View project notebook", "https://colab.research.google.com/github/CA-BijiteshKanrar/ADFT-BK/blob/main/Financial_Transaction_Anomaly_Detection.ipynb")
 
-    batch, single, details = st.tabs(["CSV Import Tab", "Single transaction", "Model comparison"])
+    batch, single, details = st.tabs(["CSV Import", "Single transaction", "Model comparison"])
     with batch:
         render_batch(bundle, examples)
     with single:
