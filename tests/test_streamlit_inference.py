@@ -7,6 +7,7 @@ import joblib
 import numpy as np
 import pandas as pd
 
+from bundled_evaluation import evaluate_held_out_test, load_held_out_test
 from fraud_scoring import RAW_FEATURES, score_transactions
 
 
@@ -50,6 +51,15 @@ class StreamlitInferenceTests(unittest.TestCase):
                 with self.subTest(model=bundle["model_name"], columns=list(frame.columns)):
                     with self.assertRaises(ValueError):
                         score_transactions(bundle, frame)
+
+    def test_bundled_test_reproduces_saved_model_results(self):
+        test, source = load_held_out_test()
+        self.assertEqual(len(test), 42_559)
+        for bundle in self.models:
+            with self.subTest(model=bundle["model_name"]):
+                scored, report = evaluate_held_out_test(bundle, test, source)
+                self.assertEqual(len(scored), len(test))
+                self.assertEqual(report, bundle["metadata"]["test_metrics"])
 
 
 if __name__ == "__main__":

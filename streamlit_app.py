@@ -8,6 +8,7 @@ import joblib
 import pandas as pd
 import streamlit as st
 
+from bundled_evaluation import evaluate_held_out_test, load_held_out_test
 from fraud_scoring import RAW_FEATURES, score_transactions
 
 
@@ -36,6 +37,13 @@ def load_models() -> dict[str, dict]:
 @st.cache_data
 def load_examples() -> pd.DataFrame:
     return pd.read_csv(SAMPLE_PATH)
+
+
+@st.cache_data(show_spinner=False)
+def run_bundled_evaluation(model_label: str) -> tuple[pd.DataFrame, dict]:
+    """Cache each fitted model's held-out evaluation across app reruns."""
+    test, source = load_held_out_test()
+    return evaluate_held_out_test(load_models()[model_label], test, source)
 
 
 def render_single(bundle: dict, examples: pd.DataFrame) -> None:
@@ -72,8 +80,36 @@ def render_single(bundle: dict, examples: pd.DataFrame) -> None:
             st.success("Below the review threshold.")
 
 
-def render_batch(bundle: dict, examples: pd.DataFrame) -> None:
+def render_batch(model_label: str, bundle: dict, examples: pd.DataFrame) -> None:
     st.subheader("Evaluate this Dataset")
+    st.write("Run the selected fitted model on the bundled dataset's held-out test rows. Its review threshold was fixed using validation data.")
+    if st.button("Evaluate bundled test data", type="primary"):
+        st.session_state["bundled_evaluation_model"] = model_label
+    if st.session_state.get("bundled_evaluation_model") == model_label:
+        try:
+            with st.spinner("Scoring the held-out transactions..."):
+                evaluated, report = run_bundled_evaluation(model_label)
+        except (OSError, ValueError, KeyError) as exc:
+            st.error(f"Cannot evaluate the bundled dataset: {exc}")
+        else:
+            st.caption("Historical held-out test split; these results do not measure live performance.")
+            first, second, third, fourth = st.columns(4)
+            first.metric("Test transactions", f"{len(evaluated):,}")
+            second.metric("Frauds detected", f"{report['TP']:,}")
+            third.metric("Frauds missed", f"{report['FN']:,}")
+            fourth.metric("False alerts", f"{report['FP']:,}")
+            st.dataframe(pd.DataFrame([report]).round(4), width="stretch", hide_index=True)
+            st.write("Scored test rows (first 100 shown)")
+            st.dataframe(evaluated.head(100), width="stretch", hide_index=True)
+            st.download_button(
+                "Download held-out evaluation CSV",
+                data=evaluated.to_csv(index=False).encode("utf-8"),
+                file_name="held_out_test_scores.csv",
+                mime="text/csv",
+            )
+
+    st.divider()
+    st.write("Or import a CSV to score another dataset.")
     st.write("Provide `Time`, `Amount`, and `V1` through `V28`. Extra columns, including `Class`, are ignored. Up to 10,000 rows are accepted.")
     st.download_button(
         "Download sample CSV",
@@ -134,7 +170,7 @@ def main() -> None:
 
     batch, single, details = st.tabs(["CSV Import", "Single transaction", "Model comparison"])
     with batch:
-        render_batch(bundle, examples)
+        render_batch(selected, bundle, examples)
     with single:
         render_single(bundle, examples)
     with details:
